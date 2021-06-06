@@ -1,0 +1,4 @@
+- name: Delegate Parent Zone to RHPDS Zone
+  hosts: localhost
+  roles:
+    - role: route53-zone-delegation

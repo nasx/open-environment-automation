@@ -1,0 +1,31 @@
+- name: Create Delegated Route53 Zone in RHPDS
+  route53_zone:
+    aws_access_key: "{{ delegation_zone_access_key }}"
+    aws_secret_key: "{{ delegation_zone_secret_key }}"
+    state: present
+    zone: "{{ delegated_zone_name }}"
+  register: delegated_zone
+
+- name: Query Delegated Zone DNS Servers in RHPDS
+  route53_info:
+    aws_access_key: "{{ delegation_zone_access_key }}"
+    aws_secret_key: "{{ delegation_zone_secret_key }}"
+    hosted_zone_id: "{{ delegated_zone.result.zone_id }}"
+    query: record_sets
+    start_record_name: "{{ delegated_zone_name }}"
+    type: NS
+  register: delegated_zone_ns_records
+
+- name: Build Delegated Zone NS Records List
+  set_fact:
+    delegated_zone_ns_list: "{{ delegated_zone_ns_records.ResourceRecordSets[0].ResourceRecords | map(attribute='Value') | flatten }}"
+
+- name: Create DNS Zone Delegation
+  route53:
+    aws_access_key: "{{ parent_zone_access_key }}"
+    aws_secret_key: "{{ parent_zone_secret_key }}"
+    record: "{{ delegated_zone_name }}"
+    state: create
+    type: NS
+    zone: "{{ parent_zone_name }}"
+    value: "{{ delegated_zone_ns_list }}"

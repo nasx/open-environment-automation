@@ -1,0 +1,2 @@
+delegated_zone_name: rhpds.aws.uc2.io
+parent_zone_name: aws.uc2.io
