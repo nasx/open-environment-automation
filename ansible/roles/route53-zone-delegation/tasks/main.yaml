@@ -24,6 +24,7 @@
   route53:
     aws_access_key: "{{ parent_zone_access_key }}"
     aws_secret_key: "{{ parent_zone_secret_key }}"
+    overwrite: yes
     record: "{{ delegated_zone_name }}"
     state: create
     type: NS
